@@ -17,7 +17,7 @@
 		<div class="form-group">
 			<label for="fullname">fullname:</label> <input type="fullname" class="form-control" placeholder="Enter fullname" id="fullname" name="fullname" value="바람검객">
 		</div>
-		<button type="submit" class="btn btn-primary">회원가입</button>
+		<button type="submit" class="btn btn-primary" id="btn" >회원가입</button>
 	</form>
 
 </div>
@@ -25,6 +25,28 @@
 </div>
 </div>
 <!-- end of context.jsp(xxx.jsp) -->
-
+<script>
+	document.getElementById("btn").addEventListener('click', function(){
+		let username = document.getElementById("username").value;
+		let password = document.getElementById("pwd").value;
+		let fullname = document.getElementById("fullname").value;
+		if (username == null || username.trim() == ""){
+			alert("username을 입력해주세요");
+			history.back();
+			return;
+		}
+		if (password == null || password.trim() == ""){
+			alert("password를 입력해주세요");
+			history.back();
+			return;
+		}
+		if (fullname == null || fullname.trim() == ""){
+			alert("fullname을 입력해주세요");
+			history.back();
+			return;
+		}
+		
+	});
+</script>
 <!-- footer.jsp -->
 <%@ include file="/WEB-INF/view/layout/footer.jsp"%>
