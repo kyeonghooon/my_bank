@@ -1,13 +1,16 @@
 package com.tenco.bank.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.tenco.bank.dto.DepositDTO;
 import com.tenco.bank.dto.SaveDTO;
@@ -16,6 +19,7 @@ import com.tenco.bank.dto.WithdrawalDTO;
 import com.tenco.bank.handler.exception.DataDeliveryException;
 import com.tenco.bank.handler.exception.UnAuthorizedException;
 import com.tenco.bank.repository.model.Account;
+import com.tenco.bank.repository.model.HistoryAccount;
 import com.tenco.bank.repository.model.User;
 import com.tenco.bank.service.AccountService;
 import com.tenco.bank.utils.Define;
@@ -171,6 +175,39 @@ public class AccountController {
 		}
 		accountService.updateAccountTransfer(dto, principal.getId());
 		return "redirect:/account/list";
+	}
+
+	/**
+	 * 계좌 상세 보기 페이지 주소 설계 : localhost:8080/account/detail/1?type=all, deposit, withdrawal
+	 * 
+	 * @return
+	 */
+	@GetMapping("/detail/{accountId}")
+	public String detail(@PathVariable(name = "accountId") Integer accountId, //
+			@RequestParam(required = false, name = "type") String type, @RequestParam(defaultValue = "1", name = "page") int page, Model model) {
+		// 유효성 검사
+		List<String> validTypes = Arrays.asList("all", "deposit", "withdrawal");
+		if (!validTypes.contains(type)) {
+			throw new DataDeliveryException("유효하지 않은 접근 입니다.", HttpStatus.BAD_REQUEST);
+		}
+		Account account = accountService.readAccountById(accountId);
+		int pageSize = 2; // 한페이지에 2개
+		int offset = (page - 1) * pageSize;
+		int totalHistories = accountService.countHistoryByAccountIdAndType(type, accountId);
+		int totalPage = (int) Math.ceil((double) totalHistories / pageSize);
+		int pageBlock = 5;
+		int tenCount = (int) Math.ceil(((double) page / pageBlock) - 1) * pageBlock;
+		int startPage = tenCount + 1;
+		int endPage = (tenCount + 5) > totalPage ? totalPage : (tenCount + pageBlock);
+		List<HistoryAccount> historyList = accountService.readHistoryByAccountId(type, accountId, offset, pageSize);
+		model.addAttribute("type", type);
+		model.addAttribute("currentPage", page);
+		model.addAttribute("startPage", startPage);
+		model.addAttribute("endPage", endPage);
+		model.addAttribute("totalPage", totalPage);
+		model.addAttribute("account", account);
+		model.addAttribute("historyList", historyList);
+		return "account/detail";
 	}
 
 }
