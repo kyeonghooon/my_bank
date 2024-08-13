@@ -23,4 +23,7 @@ public class HistoryAccount extends ValueFormatter {
 	private String sender;
 	private String receiver;
 	private Timestamp createdAt;
+	private String formattedCreatedAt;
+	private String formattedAmount;
+	private String formattedBalance;
 }

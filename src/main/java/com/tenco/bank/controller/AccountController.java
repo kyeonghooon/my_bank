@@ -209,5 +209,5 @@ public class AccountController {
 		model.addAttribute("historyList", historyList);
 		return "account/detail";
 	}
-
+	
 }
